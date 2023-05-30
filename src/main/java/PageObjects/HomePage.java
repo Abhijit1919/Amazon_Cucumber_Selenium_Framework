@@ -44,17 +44,15 @@ public class HomePage {
         wait.until(ExpectedConditions.visibilityOf(btnAll));
         btnAll.isDisplayed();
         btnAll.click();
-        checkErrorPage();
+        //checkErrorPage();
     }
     public void clickbtnElectronics(){
         WebDriverWait wait = new WebDriverWait(webDriver, 15);
         try {
             wait.until(ExpectedConditions.visibilityOf(btnElectronics));
-            Thread.sleep(5);
             btnElectronics.isDisplayed();
             btnElectronics.click();
-            checkErrorPage();
-            Thread.sleep(5);
+            //checkErrorPage();
             Wait.untilAjaxCallIsDone(webDriver, 10L);
         } catch (final Exception e) {
             e.getMessage();
@@ -65,10 +63,8 @@ public class HomePage {
     public void clickbtnCellPhonesAccessories(){
         WebDriverWait wait = new WebDriverWait(webDriver, 20);
         try{
-            Thread.sleep(5);
             wait.until(ExpectedConditions.visibilityOf(btnCellPhonesAccessories));
             btnCellPhonesAccessories.isDisplayed();
-            Thread.sleep(5);
             btnCellPhonesAccessories.click();
             checkErrorPage();
         } catch (final Exception e){

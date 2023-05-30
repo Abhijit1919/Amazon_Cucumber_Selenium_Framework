@@ -4,10 +4,12 @@ Feature: Open Amazon and finaliaz order
     Given the user navigate to www.amazon.com
     When navigate to page Cell phone and Accessories
 
+  @Regression
   @AddAllProductInExcel
   Scenario: Add to cart prodcut
     And Get ProductDetails
 
+#  @Regression
 #  @Select4thProduct
 #  Scenario: Select 4th Product and check price till cart
 #    And Select the “4th” product displayed in row one in the results page

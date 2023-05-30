@@ -1,7 +1,12 @@
 package PageObjects;
 
-import Utilities.XLUtitlity;
 import org.apache.log4j.Logger;
+
+
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.xssf.usermodel.XSSFCell;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -9,7 +14,11 @@ import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.util.List;
 
 
@@ -68,27 +77,54 @@ public class ProductListPage {
 
     public void allProductOnPage() {
         try {
-            String path = ".\\datafiles\\ProductList.xlsx";
-            XLUtitlity xlUtitlity = new XLUtitlity(path);
-            xlUtitlity.setCellData("ProductList", 0, 0, "Product Name");
-            xlUtitlity.setCellData("ProductList", 0, 1, "Product Price");
-            xlUtitlity.setCellData("ProductList", 0, 2, "Best Seller – Yes/No");
+            String [] row_header = {"Product Name", "Product Price", "Best Seller – Yes/No"};
+
+           // FileInputStream fi = new FileInputStream(".\\datafiles\\ProductList.xlsx");
+            FileOutputStream fos = new FileOutputStream( new File(".\\datafiles\\ProductList.xlsx"));
+            XSSFWorkbook workBook = new XSSFWorkbook();
+            XSSFSheet sheet = workBook.createSheet("Products");
+
+            Row header = sheet.createRow(0);
+
+            //Create header row
+            for (int i=0; i<row_header.length; i++){
+                Cell cell = header.createCell(i);
+                cell.setCellValue(row_header[i]);
+            }
+            //set the data to excel
+            for (int i = 1; i <= allProductList.size(); i++) {
+                Row row = sheet.createRow(i);
+                String productName = webDriver.findElement(By.xpath("//div[contains(@data-asin,'B0')][" + i + "]//div[@class='a-section a-spacing-small puis-padding-left-small puis-padding-right-small']/div/h2")).getText();
+
+                System.out.println(productName);
+                Cell pNameCell = row.createCell(0);
+                pNameCell.setCellValue(webDriver.findElement(By.xpath("//div[contains(@data-asin,'B0')][" + i + "]//div[@class='a-section a-spacing-small puis-padding-left-small puis-padding-right-small']/div/h2")).getText());
+
+                int productPrice = webDriver.findElements(By.xpath("//div[contains(@data-asin,'B0')][" + i + "]//div[@class='a-section a-spacing-small puis-padding-left-small puis-padding-right-small']/div/div/a/span/span/span[@class='a-price-whole']")).size();
+                if(productPrice == 0){
+                    Cell pPriceCell = row.createCell(1);
+                    pPriceCell.setCellValue("No Price");
+                }else {
+                    String ProductPriceWhole = webDriver.findElement(By.xpath("//div[contains(@data-asin,'B0')][" + i + "]//div[@class='a-section a-spacing-small puis-padding-left-small puis-padding-right-small']/div/div/a/span/span/span[@class='a-price-whole']")).getText();
+                    String productPriceInfraction = webDriver.findElement(By.xpath("//div[contains(@data-asin,'B0')][" + i + "]//div[@class='a-section a-spacing-small puis-padding-left-small puis-padding-right-small']/div/div/a/span/span/span[@class='a-price-fraction']")).getText();
+                    String totalPrice = ProductPriceWhole + "." + productPriceInfraction;
+                    Cell pPriceCell = row.createCell(1);
+                    pPriceCell.setCellValue(totalPrice);
+                }
 
 
-            for (int i = 1; i < allProductList.size(); i++) {
-
-                final String productName = webDriver.findElement(By.xpath("//div[contains(@data-asin,'B0')][" + i + "]//div[@class='a-section a-spacing-small puis-padding-left-small puis-padding-right-small']/div/h2")).getText();
-                xlUtitlity.setCellData("ProductList", i, 0, productName);
-                final String productPrice = webDriver.findElement(By.xpath("//div[contains(@data-asin,'B0')][" + i + "]//div[@class='a-section a-spacing-small puis-padding-left-small puis-padding-right-small']/div/div/a/span/span/span[@class='a-price-whole']")).getText();
-                final String productPriceInfraction = webDriver.findElement(By.xpath("//div[contains(@data-asin,'B0')][" + i + "]//div[@class='a-section a-spacing-small puis-padding-left-small puis-padding-right-small']/div/div/a/span/span/span[@class='a-price-fraction']")).getText();
-                xlUtitlity.setCellData("ProductList", i, 1, productPrice+"."+productPriceInfraction);
-                final int bestSeller = webDriver.findElements(By.xpath("//div[contains(@data-asin,'B0')][" + i + "]/div/div/div/div/div/span/div/span/span/span/span[text()='Best Seller']")).size();
+                int bestSeller = webDriver.findElements(By.xpath("//div[contains(@data-asin,'B0')][" + i + "]/div/div/div/div/div/span/div/span/span/span/span[text()='Best Seller']")).size();
+                Cell bSellerCell = row.createCell(2);
                 if (bestSeller == 0) {
-                    xlUtitlity.setCellData("ProductList", i, 2, "NO");
+                    bSellerCell.setCellValue("NO");
                 } else {
-                    xlUtitlity.setCellData("ProductList", i, 2, "YES");
+                    bSellerCell.setCellValue("YES");
                 }
             }
+
+            workBook.write(fos);
+            workBook.close();
+            fos.close();
 
         } catch (final Exception e) {
             log.info("Failed to capture data in excel");
@@ -138,11 +174,11 @@ public class ProductListPage {
     public boolean navigate3rdPageToGetProPrice(final String price) {
         WebDriverWait wait = new WebDriverWait(webDriver, 10);
         try {
-            Thread.sleep(5);
+            Thread.sleep(3);
             if (btnAddToCart.isDisplayed()) {
                 btnAddToCart.click();
                 wait.until(ExpectedConditions.visibilityOf(addBaseAlert));
-                Thread.sleep(20);
+                Thread.sleep(15);
                 final String thirddPagePrice = checkoutPrice.getText();
                 final String finalPrice = thirddPagePrice.replaceAll("[^a-zA-Z0-9]", " ").replaceAll("\\s", "");
                 if (price.contentEquals(finalPrice)) {
@@ -157,9 +193,9 @@ public class ProductListPage {
 
     public boolean navigateToProceed() {
         try {
-            Thread.sleep(5);
+            Thread.sleep(3);
             procceedBtn.click();
-            Thread.sleep(5);
+            Thread.sleep(3);
             if (signIN.isDisplayed()) {
                 return true;
             }
