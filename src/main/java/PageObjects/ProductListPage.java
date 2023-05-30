@@ -96,7 +96,6 @@ public class ProductListPage {
                 Row row = sheet.createRow(i);
                 String productName = webDriver.findElement(By.xpath("//div[contains(@data-asin,'B0')][" + i + "]//div[@class='a-section a-spacing-small puis-padding-left-small puis-padding-right-small']/div/h2")).getText();
 
-                System.out.println(productName);
                 Cell pNameCell = row.createCell(0);
                 pNameCell.setCellValue(webDriver.findElement(By.xpath("//div[contains(@data-asin,'B0')][" + i + "]//div[@class='a-section a-spacing-small puis-padding-left-small puis-padding-right-small']/div/h2")).getText());
 
